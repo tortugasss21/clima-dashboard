@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatório Climático</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0b0f1a;
+      --surface: #111827;
+      --surface2: #1a2235;
+      --border: rgba(255,255,255,0.07);
+      --text: #e8edf5;
+      --muted: #6b7a99;
+      --accent: #3b82f6;
+      --accent2: #60a5fa;
+      --cold: #38bdf8;
+      --mild: #34d399;
+      --warm: #fb923c;
+      --hot: #f87171;
+      --rain-low: #34d399;
+      --rain-med: #facc15;
+      --rain-high: #fb923c;
+      --rain-very: #f87171;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 40px 20px;
+      background-image:
+        radial-gradient(ellipse 80% 50% at 20% -10%, rgba(59,130,246,0.15) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 110%, rgba(99,102,241,0.1) 0%, transparent 60%);
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* HEADER */
+    .header {
+      margin-bottom: 48px;
+      animation: fadeDown 0.6s ease both;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 8px 24px rgba(59,130,246,0.3);
+    }
+
+    .logo-text h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--text);
+    }
+
+    .logo-text p {
+      font-size: 13px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      margin-top: 2px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(59,130,246,0.12);
+      border: 1px solid rgba(59,130,246,0.25);
+      color: var(--accent2);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--accent2);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    /* CITY CARDS */
+    .cities {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .city-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.6s ease both;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .city-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+
+    .city-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+    }
+
+    .city-card:nth-child(1) { animation-delay: 0.1s; }
+    .city-card:nth-child(2) { animation-delay: 0.2s; }
+    .city-card:nth-child(3) { animation-delay: 0.3s; }
+
+    .city-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+
+    .city-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .city-state {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .condition-badge {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.06);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .temp-main {
+      font-size: 56px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -3px;
+      margin-bottom: 6px;
+    }
+
+    .temp-main span {
+      font-size: 28px;
+      font-weight: 400;
+      letter-spacing: -1px;
+      opacity: 0.6;
+    }
+
+    .temp-range {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+
+    .temp-range .max { color: var(--warm); }
+    .temp-range .min { color: var(--cold); }
+    .temp-range span { color: var(--muted); font-size: 11px; }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 20px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+      font-size: 18px;
+      font-weight: 600;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .rain-bar-wrap {
+      grid-column: span 2;
+    }
+
+    .rain-bar-track {
+      height: 6px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .rain-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 1s ease;
+    }
+
+    .emoji-bg {
+      position: absolute;
+      bottom: -10px;
+      right: -10px;
+      font-size: 90px;
+      opacity: 0.06;
+      pointer-events: none;
+      line-height: 1;
+    }
+
+    /* TABLE SECTION */
+    .table-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      animation: fadeUp 0.6s 0.4s ease both;
+      margin-bottom: 24px;
+    }
+
+    .table-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .table-header h2 {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .table-header p {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead tr {
+      background: rgba(255,255,255,0.03);
+    }
+
+    th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 14px 16px;
+      border-top: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      transition: background 0.15s;
+    }
+
+    tbody tr:hover {
+      background: rgba(255,255,255,0.03);
+    }
+
+    .td-city { font-weight: 600; }
+
+    .chip {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    /* LEGEND */
+    .legend {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px 24px;
+      animation: fadeUp 0.6s 0.5s ease both;
+    }
+
+    .legend h3 {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .legend-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 24px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* FOOTER */
+    .footer {
+      text-align: center;
+      margin-top: 32px;
+      font-size: 12px;
+      color: var(--muted);
+      animation: fadeUp 0.6s 0.6s ease both;
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 600px) {
+      .cities { grid-template-columns: 1fr; }
+      .header-top { flex-direction: column; }
+      .table-section { overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-top">
+      <div class="logo">
+        <div class="logo-icon">🌤️</div>
+        <div class="logo-text">
+          <h1>Monitoramento Climático</h1>
+          <p id="horaColeta">Carregando...</p>
+        </div>
+      </div>
+      <div class="badge" id="statusBadge">Atualizando dados...</div>
+    </div>
+  </div>
+
+  <!-- CITY CARDS -->
+  <div class="cities" id="cityCards">
+    <!-- gerado via JS -->
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-section">
+    <div class="table-header">
+      <div>
+        <h2>Comparativo Detalhado</h2>
+        <p>Todas as métricas lado a lado</p>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Cidade</th>
+          <th>Condição</th>
+          <th>Temp.</th>
+          <th>Máx.</th>
+          <th>Mín.</th>
+          <th>Umidade</th>
+          <th>Vento</th>
+          <th>🌧️ Chuva</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <!-- gerado via JS -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <h3>Legenda de Cores</h3>
+    <div class="legend-items">
+      <div class="legend-item"><div class="legend-dot" style="background:#38bdf8"></div>Frio (&lt;20°C)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#34d399"></div>Agradável (20–27°C)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#fb923c"></div>Quente (28–34°C)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f87171"></div>Muito quente (≥35°C)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#34d399"></div>Chuva baixa (0–19%)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#facc15"></div>Chuva moderada (20–49%)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#fb923c"></div>Chuva alta (50–79%)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f87171"></div>Chuva muito alta (≥80%)</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Gerado automaticamente pelo robô de monitoramento climático 🤖 · Open-Meteo API
+  </div>
+
+</div>
+
+<script>
+  // ─── CONFIG ───────────────────────────────────────────────
+  const CIDADES_CONFIG = [
+    { nome: "Horizontina", estado: "RS", lat: -27.6089, lon: -54.3089 },
+    { nome: "Santa Rosa",  estado: "RS", lat: -27.8722, lon: -54.4806 },
+    { nome: "Belém",       estado: "PA", lat: -1.4558,  lon: -48.5044 },
+  ];
+
+  const CODIGOS = {
+    0:  { texto: "Céu limpo",           emoji: "☀️"  },
+    1:  { texto: "Princ. limpo",        emoji: "🌤️"  },
+    2:  { texto: "Parc. nublado",       emoji: "⛅"  },
+    3:  { texto: "Nublado",             emoji: "☁️"  },
+    45: { texto: "Neblina",             emoji: "🌫️"  },
+    48: { texto: "Neblina c/ gelo",     emoji: "🌫️"  },
+    51: { texto: "Garoa leve",          emoji: "🌦️"  },
+    53: { texto: "Garoa moderada",      emoji: "🌦️"  },
+    55: { texto: "Garoa intensa",       emoji: "🌧️"  },
+    61: { texto: "Chuva leve",          emoji: "🌧️"  },
+    63: { texto: "Chuva moderada",      emoji: "🌧️"  },
+    65: { texto: "Chuva forte",         emoji: "🌧️"  },
+    71: { texto: "Neve leve",           emoji: "🌨️"  },
+    73: { texto: "Neve moderada",       emoji: "❄️"  },
+    75: { texto: "Neve forte",          emoji: "❄️"  },
+    80: { texto: "Pancadas leves",      emoji: "🌦️"  },
+    81: { texto: "Pancadas moder.",     emoji: "🌧️"  },
+    82: { texto: "Pancadas fortes",     emoji: "⛈️"  },
+    95: { texto: "Trovoada",            emoji: "⛈️"  },
+    96: { texto: "Trovoada c/ granizo", emoji: "⛈️"  },
+    99: { texto: "Trovoada intensa",    emoji: "⛈️"  },
+  };
+
+  // ─── HELPERS ──────────────────────────────────────────────
+  function condicao(code) {
+    return CODIGOS[code] || { texto: "Indisponível", emoji: "🌡️" };
+  }
+
+  function corTemp(v) {
+    if (v == null) return "#6b7a99";
+    if (v >= 35) return "#f87171";
+    if (v >= 28) return "#fb923c";
+    if (v >= 20) return "#34d399";
+    return "#38bdf8";
+  }
+
+  function corChuva(v) {
+    if (v == null) return "#6b7a99";
+    if (v >= 80) return "#f87171";
+    if (v >= 50) return "#fb923c";
+    if (v >= 20) return "#facc15";
+    return "#34d399";
+  }
+
+  function fmt(v, s = "") { return v != null ? v + s : "-"; }
+
+  // ─── FETCH ────────────────────────────────────────────────
+  async function fetchCidade({ nome, estado, lat, lon }) {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=America%2FSao_Paulo`;
+    const res  = await fetch(url);
+    const data = await res.json();
+    return {
+      nome, estado,
+      temp:    data.current?.temperature_2m,
+      umidade: data.current?.relative_humidity_2m,
+      vento:   data.current?.wind_speed_10m,
+      code:    data.current?.weather_code,
+      max:     data.daily?.temperature_2m_max?.[0],
+      min:     data.daily?.temperature_2m_min?.[0],
+      chuva:   data.daily?.precipitation_probability_max?.[0],
+    };
+  }
+
+  // ─── RENDER CARDS ─────────────────────────────────────────
+  function renderCards(dados) {
+    const container = document.getElementById("cityCards");
+    container.innerHTML = dados.map(d => {
+      const c = condicao(d.code);
+      return `
+        <div class="city-card">
+          <div class="emoji-bg">${c.emoji}</div>
+          <div class="city-header">
+            <div>
+              <div class="city-name">${d.nome}</div>
+              <div class="city-state">${d.estado}, Brasil</div>
+            </div>
+            <div class="condition-badge">${c.emoji} ${c.texto}</div>
+          </div>
+
+          <div class="temp-main" style="color:${corTemp(d.temp)}">${fmt(d.temp)}<span>°C</span></div>
+
+          <div class="temp-range">
+            <div class="max">↑ ${fmt(d.max, "°C")} <span>máx</span></div>
+            <div class="min">↓ ${fmt(d.min, "°C")} <span>mín</span></div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="stats-grid">
+            <div class="stat">
+              <div class="stat-label">💧 Umidade</div>
+              <div class="stat-value" style="color:#60a5fa">${fmt(d.umidade, "%")}</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">💨 Vento</div>
+              <div class="stat-value" style="color:#a78bfa">${fmt(d.vento, " km/h")}</div>
+            </div>
+            <div class="stat rain-bar-wrap">
+              <div class="stat-label">🌧️ Chance de Chuva</div>
+              <div class="stat-value" style="color:${corChuva(d.chuva)}">${fmt(d.chuva, "%")}</div>
+              <div class="rain-bar-track">
+                <div class="rain-bar-fill" style="width:${d.chuva ?? 0}%; background:${corChuva(d.chuva)};"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  // ─── RENDER TABLE ─────────────────────────────────────────
+  function renderTable(dados) {
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = dados.map(d => {
+      const c = condicao(d.code);
+      return `
+        <tr>
+          <td class="td-city">${d.nome}, ${d.estado}</td>
+          <td>${c.emoji} ${c.texto}</td>
+          <td style="color:${corTemp(d.temp)}; font-weight:600; font-family:'DM Mono',monospace">${fmt(d.temp, "°C")}</td>
+          <td style="color:${corTemp(d.max)}; font-family:'DM Mono',monospace">${fmt(d.max, "°C")}</td>
+          <td style="color:${corTemp(d.min)}; font-family:'DM Mono',monospace">${fmt(d.min, "°C")}</td>
+          <td style="font-family:'DM Mono',monospace">${fmt(d.umidade, "%")}</td>
+          <td style="font-family:'DM Mono',monospace">${fmt(d.vento, " km/h")}</td>
+          <td style="color:${corChuva(d.chuva)}; font-weight:600; font-family:'DM Mono',monospace">${fmt(d.chuva, "%")}</td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  // ─── INIT ─────────────────────────────────────────────────
+  async function init() {
+    const hora = new Date().toLocaleString("pt-BR", {
+      timeZone: "America/Sao_Paulo",
+      weekday: "long", year: "numeric", month: "long",
+      day: "numeric", hour: "2-digit", minute: "2-digit"
+    });
+    document.getElementById("horaColeta").textContent = hora;
+
+    try {
+      const dados = await Promise.all(CIDADES_CONFIG.map(fetchCidade));
+      renderCards(dados);
+      renderTable(dados);
+      document.getElementById("statusBadge").textContent = "✓ Dados atualizados";
+    } catch (e) {
+      document.getElementById("statusBadge").textContent = "⚠️ Erro ao carregar";
+      console.error(e);
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>
